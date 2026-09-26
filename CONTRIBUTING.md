@@ -100,8 +100,10 @@ noncompliant example and a compliant solution, using Gosu code. See
 [`SwitchWithoutDefault.html`](src/main/resources/org/sonargosu/plugin/rules/SwitchWithoutDefault.html).
 The build fails if a rule has no description.
 
-**4. Test it** in [`ChecksTest`](src/test/java/org/sonargosu/plugin/checks/ChecksTest.java), with code
-that should and code that should not raise an issue:
+**4. Test it** in its own test class, next to the others in
+[`src/test/java/org/sonargosu/plugin/checks/`](src/test/java/org/sonargosu/plugin/checks), with code
+that should and code that should not raise an issue. For example,
+[`SwitchWithoutDefaultCheckTest`](src/test/java/org/sonargosu/plugin/checks/SwitchWithoutDefaultCheckTest.java):
 
 ```java
 @Test
