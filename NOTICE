@@ -1,0 +1,17 @@
+Gosu Plugin for SonarQube
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes a grammar derived from the Gosu language grammars
+(gosu-core/src/main/java/gw/internal/gosu/parser/ebnf/Gosu.g and GosuProg.g),
+Copyright 2013 Guidewire Software, Inc., licensed under the Apache License, Version 2.0.
+Source: https://github.com/gosu-lang/gosu-lang
+
+The unmodified original grammar files are included in grammar/original/.
+The changes made in the derived grammar are listed at the top of
+src/main/antlr4/org/sonargosu/plugin/parser/Gosu.g4.
+
+The plugin JAR bundles the ANTLR 4 runtime (https://www.antlr.org/),
+Copyright (c) 2012-2022 The ANTLR Project, licensed under the BSD 3-Clause License.
+
+Gosu is a trademark of Guidewire Software, Inc. SonarQube is a trademark of SonarSource SA.
+This project is not affiliated with or endorsed by Guidewire Software or SonarSource.

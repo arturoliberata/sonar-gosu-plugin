@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.github.arturoliberata</groupId>
+  <artifactId>sonar-gosu-plugin</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>sonar-plugin</packaging>
+
+  <name>Gosu Analyzer for SonarQube</name>
+  <description>Code analyzer for the Gosu language (.gs, .gsx, .gst, .gsp)</description>
+  <!-- The packaging plugin copies url, licenses, developers, scm and issueManagement into the
+       plugin manifest; SonarQube shows them on its plugin page. -->
+  <url>https://github.com/arturoliberata/sonar-gosu-plugin</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>arturoliberata</id>
+      <name>arturoliberata</name>
+      <url>https://github.com/arturoliberata</url>
+    </developer>
+  </developers>
+
+  <scm>
+    <url>https://github.com/arturoliberata/sonar-gosu-plugin</url>
+    <connection>scm:git:https://github.com/arturoliberata/sonar-gosu-plugin.git</connection>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/arturoliberata/sonar-gosu-plugin/issues</url>
+  </issueManagement>
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Building against the 9.14 API keeps the plugin compatible with SonarQube 9.9 LTS and newer. -->
+    <sonar.api.version>9.14.0.375</sonar.api.version>
+    <sonar.impl.version>9.9.0.65466</sonar.impl.version>
+    <junit.version>5.10.2</junit.version>
+    <antlr.version>4.13.2</antlr.version>
+  </properties>
+
+  <dependencies>
+    <!-- Bundled into the plugin JAR (META-INF/lib) by the packaging plugin -->
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr4-runtime</artifactId>
+      <version>${antlr.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sonarsource.api.plugin</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+      <version>${sonar.api.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Test-only: SensorContextTester, TestInputFileBuilder, PluginContextImpl -->
+    <dependency>
+      <groupId>org.sonarsource.sonarqube</groupId>
+      <artifactId>sonar-plugin-api-impl</artifactId>
+      <version>${sonar.impl.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.25.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>5.12.0</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <!-- Pinned so Maven does not probe (and warn about) Maven 4 beta plugin versions -->
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.3.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.13.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>3.1.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.2</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
+        <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <version>1.21.0.505</version>
+        <extensions>true</extensions>
+        <configuration>
+          <pluginKey>gosu</pluginKey>
+          <pluginName>Gosu</pluginName>
+          <pluginClass>org.sonargosu.plugin.GosuPlugin</pluginClass>
+          <sonarLintSupported>false</sonarLintSupported>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-maven-plugin</artifactId>
+        <version>${antlr.version}</version>
+        <configuration>
+          <visitor>true</visitor>
+          <listener>true</listener>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>antlr4</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>
