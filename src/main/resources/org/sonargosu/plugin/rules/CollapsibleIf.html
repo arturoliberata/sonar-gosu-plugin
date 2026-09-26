@@ -1,0 +1,17 @@
+<p>Two nested <code>if</code> statements without an <code>else</code> are equivalent to a single
+<code>if</code> joining both conditions with <code>and</code>. Merging them removes a level of nesting
+and makes the code easier to read.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+if (policy != null) {
+  if (policy.Status == "active") {
+    renew(policy)
+  }
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+if (policy != null and policy.Status == "active") {
+  renew(policy)
+}
+</pre>

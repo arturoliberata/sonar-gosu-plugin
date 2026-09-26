@@ -1,0 +1,18 @@
+<p>An empty <code>catch</code> block hides failures: the program carries on as if nothing happened,
+and nobody finds out why data is wrong later. Handle or log the exception, or add a comment explaining
+why ignoring it is safe.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+try {
+  doSomething()
+} catch (e : Exception) {
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+try {
+  doSomething()
+} catch (e : Exception) {
+  _logger.error("doSomething failed", e)
+}
+</pre>

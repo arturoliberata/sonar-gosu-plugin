@@ -1,0 +1,27 @@
+<p>A <code>switch</code> without a <code>default</code> case silently does nothing for values nobody
+thought of, including values added to a typelist or enum later. A <code>default</code> case makes the
+behavior explicit, even if it only logs or throws.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+switch (claim.State) {
+  case "open":
+    notifyAdjuster(claim)
+    break
+  case "closed":
+    archive(claim)
+    break
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+switch (claim.State) {
+  case "open":
+    notifyAdjuster(claim)
+    break
+  case "closed":
+    archive(claim)
+    break
+  default:
+    throw new IllegalStateException("Unexpected state " + claim.State)
+}
+</pre>

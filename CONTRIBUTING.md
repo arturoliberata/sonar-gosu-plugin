@@ -24,18 +24,18 @@ Pick one, comment on its issue (or open one) so nobody duplicates work, and go.
 
 | Rule | Idea | Start from |
 |---|---|---|
-| Switch without default | `switch` with no `default` case | `EmptyCatchBlockCheck` |
-| Collapsible if | `if (a) { if (b) { ... } }` without `else` can be merged | `EmptyCatchBlockCheck` |
 | Too many lines in a function | function body longer than N lines (parameter) | `TooManyParametersCheck` |
-| Empty function body | function with an empty body and no explaining comment | `EmptyCatchBlockCheck` |
-| Boolean literal comparison | `x == true`, `flag != false` | `PrintStatementCheck` |
+| Boolean literal comparison | `x == true`, `flag != false` | `IdenticalOperandsCheck` |
+| Nested ternary operators | `a ? b : (c ? d : e)` | `CollapsibleIfCheck` |
+| Exception never thrown | `new SomethingException(...)` used as a statement, without `throw` | `SelfAssignmentCheck` |
+| Redundant return | `return` as the last statement of a function that returns nothing | `JumpInFinallyCheck` |
 
 **Medium:**
 
 | Rule | Idea |
 |---|---|
-| Unused local variable | declared but never read; `SymbolTableVisitor` already links declarations to uses |
-| Unused private function | never called within its class |
+| Unused function parameter | the symbol table already marks parameters (`Kind.PARAMETER`); skip `override` functions |
+| Unused `uses` statement | the imported name never appears in the file; see `GosuFile.nameOccurrences` |
 | Identical branches | `if` and `else` (or two `case`s) with the same code |
 | Deep nesting | `if`/`for`/`while`/`try` nested deeper than N |
 | Cognitive complexity | the metric SonarQube uses for "hard to understand" functions |
@@ -55,7 +55,8 @@ identity), there are no checked exceptions, and properties replace getters and s
 
 ## Your first rule, step by step
 
-Example: flag a `switch` without a `default` case.
+Example: the `SwitchWithoutDefault` rule, which flags a `switch` without a `default` case.
+Its real code is in [`SwitchWithoutDefaultCheck.java`](src/main/java/org/sonargosu/plugin/checks/SwitchWithoutDefaultCheck.java).
 
 **1. Find the grammar rule.** Open [`Gosu.g4`](src/main/antlr4/org/sonargosu/plugin/parser/Gosu.g4)
 and search for `switch`:
@@ -84,12 +85,20 @@ public class SwitchWithoutDefaultCheck extends TreeCheck {
 }
 ```
 
-`TreeCheck` walks the parse tree for you and skips files that don't parse.
+`TreeCheck` walks the parse tree for you and skips files that don't parse. It also has helpers
+used by several rules: `isEmptyWithoutComment(block)`, `modifiersOf(declaration)`, `hasModifier(...)`.
 For line or text based rules, implement `GosuCheck` instead and use `GosuFile.lines()` or `tokens()`.
+Rules about names can use `GosuFile.symbols()` (each declaration with its uses) and
+`GosuFile.nameOccurrences(name)`, which also counts uses inside string templates like `"${total}"`.
 
 **3. Register it** with one entry in the [`GosuRule`](src/main/java/org/sonargosu/plugin/rules/GosuRule.java)
-enum: key, title, HTML description (with a noncompliant and a compliant example), severity, type and
-parameters. The rules repository, the quality profile and the sensor all read from that enum.
+enum: key, title, severity, type and parameters. The rules repository, the quality profile and the
+sensor all read from that enum.
+
+Then describe it in `src/main/resources/org/sonargosu/plugin/rules/<Key>.html`: why it matters, a
+noncompliant example and a compliant solution, using Gosu code. See
+[`SwitchWithoutDefault.html`](src/main/resources/org/sonargosu/plugin/rules/SwitchWithoutDefault.html).
+The build fails if a rule has no description.
 
 **4. Test it** in [`ChecksTest`](src/test/java/org/sonargosu/plugin/checks/ChecksTest.java), with code
 that should and code that should not raise an issue:

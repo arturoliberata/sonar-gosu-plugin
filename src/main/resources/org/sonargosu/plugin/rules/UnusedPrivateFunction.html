@@ -1,0 +1,22 @@
+<p>A private function that is never called from its file is dead code and should be removed.
+Keeping it makes the class harder to understand and to change.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+class ClaimHelper {
+  function isLarge(claim : Claim) : boolean {
+    return claim.Amount &gt; 10000
+  }
+
+  private function legacyCheck(claim : Claim) : boolean {   // never called
+    return claim.Amount &gt; 5000
+  }
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+class ClaimHelper {
+  function isLarge(claim : Claim) : boolean {
+    return claim.Amount &gt; 10000
+  }
+}
+</pre>

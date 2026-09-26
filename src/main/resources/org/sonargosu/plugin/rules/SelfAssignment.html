@@ -1,0 +1,14 @@
+<p>Assigning a variable to itself has no effect. It is almost always a mistake, typically a
+constructor or setter that meant to assign a parameter to a field with a similar name.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+construct(name : String) {
+  name = name
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+construct(name : String) {
+  _name = name
+}
+</pre>

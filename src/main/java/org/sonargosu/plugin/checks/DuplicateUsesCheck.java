@@ -12,7 +12,7 @@ public class DuplicateUsesCheck extends TreeCheck {
   private final Set<String> seen = new HashSet<>();
 
   @Override
-  public void enterUsesStatementList(GosuParser.UsesStatementListContext ctx) {
+  protected void startFile() {
     seen.clear();
   }
 

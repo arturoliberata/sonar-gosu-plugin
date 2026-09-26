@@ -1,0 +1,12 @@
+<p>A long parameter list usually means the function does too much, or that the parameters belong
+together in a class or structure. It also makes calls easy to get wrong, since arguments of the same
+type can be swapped without any error.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+function createClaim(policy : Policy, date : Date, amount : BigDecimal, city : String,
+    state : String, zip : String, reporter : String, phone : String) : Claim
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+function createClaim(policy : Policy, loss : LossDetails, reporter : Contact) : Claim
+</pre>

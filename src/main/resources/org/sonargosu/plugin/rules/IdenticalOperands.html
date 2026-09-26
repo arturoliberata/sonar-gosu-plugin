@@ -1,0 +1,17 @@
+<p>Using the same expression on both sides of a comparison, logical, bitwise, subtraction, division
+or remainder operator is almost always a copy-paste mistake: <code>a == a</code> is always true,
+<code>x - x</code> is always zero, and <code>ready and ready</code> checks the same thing twice.</p>
+<p>Expressions containing function calls are ignored, since calling a function twice can give
+different results.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+if (policy.StartDate == policy.StartDate) {   // meant policy.EndDate?
+  renew(policy)
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+if (policy.StartDate == policy.EndDate) {
+  renew(policy)
+}
+</pre>

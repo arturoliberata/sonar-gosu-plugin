@@ -1,0 +1,17 @@
+<p>A local variable that is declared but never used is dead code. It makes readers wonder what
+it was for, and often points at unfinished or broken logic.</p>
+<p>Variables used only inside string templates, such as <code>"Total: ${total}"</code>, count as used.
+Resource variables of a <code>using</code> statement are not reported, since <code>using</code> closes them.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+function premium(policy : Policy) : BigDecimal {
+  var discount = policy.Discount   // never used
+  return policy.BasePremium
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+function premium(policy : Policy) : BigDecimal {
+  return policy.BasePremium
+}
+</pre>

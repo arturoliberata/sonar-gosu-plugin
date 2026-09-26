@@ -1,0 +1,18 @@
+<p>An empty block of code in an <code>if</code>, <code>else</code>, loop, <code>try</code>,
+<code>finally</code> or <code>using</code> statement is either missing code or dead weight.
+Fill it, remove it, or add a comment explaining why it is empty.</p>
+<p>Empty <code>catch</code> blocks, function bodies and <code>\ -&gt; {}</code> blocks are covered
+by other rules or are a normal idiom, and are not reported here.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+if (claim.Closed) {
+} else {
+  reopen(claim)
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+if (not claim.Closed) {
+  reopen(claim)
+}
+</pre>

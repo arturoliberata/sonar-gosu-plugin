@@ -1,0 +1,12 @@
+<p>Importing the same type twice is redundant and clutters the file header.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+uses java.util.List
+uses java.util.Map
+uses java.util.List
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+uses java.util.List
+uses java.util.Map
+</pre>

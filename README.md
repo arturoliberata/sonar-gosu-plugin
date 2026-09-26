@@ -12,7 +12,7 @@ syntax highlighting, metrics, duplication detection, a symbol table and code-qua
 
 | Data | Details |
 |---|---|
-| Issues | 7 rules, all active in the built-in **Sonar way** profile |
+| Issues | 17 rules, all active in the built-in **Sonar way** profile |
 | Measures | lines of code, comment lines, functions, classes, statements, cyclomatic complexity |
 | Executable lines | one per statement; lines a coverage report is expected to cover |
 | Duplications | copy-paste detection; `uses` and `package` lines are excluded |
@@ -27,13 +27,23 @@ the grammar does not cover template syntax. The list is configurable with `sonar
 
 | Key | Type | Checks |
 |---|---|---|
-| `ParsingError` | Code smell | the file could not be parsed (tree-based rules are skipped for it) |
 | `EmptyCatchBlock` | Bug | `catch` with an empty body (a comment inside is accepted) |
+| `JumpInFinally` | Bug | `return`, `throw`, `break` or `continue` leaving a `finally` block |
+| `SelfAssignment` | Bug | `x = x` |
+| `IdenticalOperands` | Bug | the same expression on both sides of an operator: `a == a`, `x - x` |
+| `EmptyBlock` | Code smell | empty `if`/`else`/loop/`try`/`finally`/`using` blocks without a comment |
+| `EmptyFunction` | Code smell | functions and property accessors with an empty body and no comment |
+| `SwitchWithoutDefault` | Code smell | `switch` without a `default` case |
+| `CollapsibleIf` | Code smell | nested `if` statements without `else` that can be merged |
+| `UnusedLocalVariable` | Code smell | local variables that are never used (uses inside `"${...}"` templates count) |
+| `UnusedPrivateField` | Code smell | private fields never used in their file |
+| `UnusedPrivateFunction` | Code smell | private functions never called in their file |
 | `PrintStatement` | Code smell | `print(...)`, `System.out`, `System.err` |
 | `TooManyParameters` | Code smell | more than 7 parameters on a `function` / `construct` (configurable) |
 | `DuplicateUses` | Code smell | the same `uses` statement twice |
 | `LineLength` | Code smell | lines over 120 characters (configurable) |
 | `TodoComment` | Code smell | `TODO` / `FIXME` in comments |
+| `ParsingError` | Code smell | the file could not be parsed (tree-based rules are skipped for it) |
 
 ## Installation
 

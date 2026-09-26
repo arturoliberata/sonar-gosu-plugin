@@ -1,0 +1,25 @@
+<p>A <code>return</code>, <code>throw</code>, <code>break</code> or <code>continue</code> inside a
+<code>finally</code> block overrides whatever the <code>try</code> block was doing. An exception thrown
+in the <code>try</code> block is silently discarded, and a value it returned is replaced.</p>
+<p><code>break</code> and <code>continue</code> are fine when they belong to a loop or <code>switch</code>
+that is itself inside the <code>finally</code> block.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+function load() : int {
+  try {
+    return readValue()   // an exception here is lost
+  } finally {
+    return 0
+  }
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+function load() : int {
+  try {
+    return readValue()
+  } finally {
+    cleanUp()
+  }
+}
+</pre>

@@ -1,0 +1,11 @@
+<p>Output written with Gosu's <code>print()</code>, <code>System.out</code> or <code>System.err</code>
+goes to the server console. It bypasses log levels, formatting and log files, so the message is easy
+to lose in production. Use the application logger instead.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+print("Rating policy " + policy.PolicyNumber)
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+_logger.info("Rating policy " + policy.PolicyNumber)
+</pre>

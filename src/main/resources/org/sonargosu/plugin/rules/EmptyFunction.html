@@ -1,0 +1,16 @@
+<p>A function with an empty body looks unfinished. If doing nothing is intentional, for example
+an override that deliberately disables a behavior, say so in a comment inside the body. Otherwise,
+implement it or throw an <code>UnsupportedOperationException</code>.</p>
+<p>Constructors are not reported: an empty private constructor is a common way to prevent
+instantiation.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+override function onRenewal(period : PolicyPeriod) {
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+override function onRenewal(period : PolicyPeriod) {
+  // Renewals need no extra processing for this product line
+}
+</pre>

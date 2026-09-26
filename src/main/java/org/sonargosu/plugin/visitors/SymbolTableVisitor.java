@@ -22,13 +22,20 @@ import org.sonargosu.plugin.parser.GosuParser;
  */
 public final class SymbolTableVisitor extends GosuBaseListener {
 
-  /** A declaration and every reference to it. */
-  public record Symbol(Token declaration, List<Token> references) {
+  public enum Kind {
+    FIELD, PARAMETER, LOCAL_VARIABLE, LOOP_VARIABLE, CATCH_VARIABLE, BLOCK_PARAMETER
+  }
+
+  /**
+   * A declaration and every reference to it. {@code node} is the declaring construct,
+   * e.g. the LocalVarStatementContext of a local variable.
+   */
+  public record Symbol(Token declaration, Kind kind, ParserRuleContext node, List<Token> references) {
   }
 
   private final List<Symbol> symbols = new ArrayList<>();
   private final Deque<Map<String, Symbol>> scopes = new ArrayDeque<>();
-  private List<Token> pendingParameters = new ArrayList<>();
+  private List<GosuParser.ParameterDeclarationContext> pendingParameters = new ArrayList<>();
 
   public static List<Symbol> visit(ParserRuleContext tree) {
     SymbolTableVisitor visitor = new SymbolTableVisitor();
@@ -37,12 +44,12 @@ public final class SymbolTableVisitor extends GosuBaseListener {
     return visitor.symbols;
   }
 
-  private void declare(ParserRuleContext id) {
+  private void declare(ParserRuleContext id, Kind kind, ParserRuleContext node) {
     if (id == null || scopes.isEmpty()) {
       return;
     }
     Token token = id.getStart();
-    Symbol symbol = new Symbol(token, new ArrayList<>());
+    Symbol symbol = new Symbol(token, kind, node, new ArrayList<>());
     symbols.add(symbol);
     scopes.peek().put(token.getText(), symbol);
   }
@@ -62,7 +69,7 @@ public final class SymbolTableVisitor extends GosuBaseListener {
     pushScope();
     for (GosuParser.DeclarationContext declaration : ctx.declaration()) {
       if (declaration.fieldDefn() != null) {
-        declare(declaration.fieldDefn().id(0));
+        declare(declaration.fieldDefn().id(0), Kind.FIELD, declaration);
       }
     }
   }
@@ -76,7 +83,7 @@ public final class SymbolTableVisitor extends GosuBaseListener {
   public void enterInterfaceMembers(GosuParser.InterfaceMembersContext ctx) {
     pushScope();
     for (GosuParser.FieldDefnContext field : ctx.fieldDefn()) {
-      declare(field.id(0));
+      declare(field.id(0), Kind.FIELD, field);
     }
   }
 
@@ -106,19 +113,17 @@ public final class SymbolTableVisitor extends GosuBaseListener {
   public void enterParameterDeclaration(GosuParser.ParameterDeclarationContext ctx) {
     boolean isFunctionParameter = ctx.getParent().getParent() instanceof GosuParser.ParametersContext;
     if (isFunctionParameter) {
-      pendingParameters.add(ctx.id().getStart());
+      pendingParameters.add(ctx);
     } else {
-      declare(ctx.id()); // block expression parameter: its scope is already open
+      declare(ctx.id(), Kind.BLOCK_PARAMETER, ctx); // block expression parameter: its scope is already open
     }
   }
 
   @Override
   public void enterFunctionBody(GosuParser.FunctionBodyContext ctx) {
     pushScope();
-    for (Token parameter : pendingParameters) {
-      Symbol symbol = new Symbol(parameter, new ArrayList<>());
-      symbols.add(symbol);
-      scopes.peek().put(parameter.getText(), symbol);
+    for (GosuParser.ParameterDeclarationContext parameter : pendingParameters) {
+      declare(parameter.id(), Kind.PARAMETER, parameter);
     }
     pendingParameters = new ArrayList<>();
   }
@@ -153,16 +158,16 @@ public final class SymbolTableVisitor extends GosuBaseListener {
   @Override
   public void enterForEachStatement(GosuParser.ForEachStatementContext ctx) {
     pushScope();
-    declare(ctx.id());
+    declare(ctx.id(), Kind.LOOP_VARIABLE, ctx);
     GosuParser.IndexVarContext index = ctx.indexVar();
     if (index == null && ctx.indexRest() != null) {
       index = ctx.indexRest().indexVar();
     }
     if (index != null) {
-      declare(index.id());
+      declare(index.id(), Kind.LOOP_VARIABLE, ctx);
     }
     if (ctx.indexRest() != null && ctx.indexRest().iteratorVar() != null) {
-      declare(ctx.indexRest().iteratorVar().id());
+      declare(ctx.indexRest().iteratorVar().id(), Kind.LOOP_VARIABLE, ctx);
     }
   }
 
@@ -174,7 +179,7 @@ public final class SymbolTableVisitor extends GosuBaseListener {
   @Override
   public void enterCatchClause(GosuParser.CatchClauseContext ctx) {
     pushScope();
-    declare(ctx.id());
+    declare(ctx.id(), Kind.CATCH_VARIABLE, ctx);
   }
 
   @Override
@@ -185,7 +190,7 @@ public final class SymbolTableVisitor extends GosuBaseListener {
   // Declared on exit so that "var x = x + 1" refers to an outer x.
   @Override
   public void exitLocalVarStatement(GosuParser.LocalVarStatementContext ctx) {
-    declare(ctx.id());
+    declare(ctx.id(), Kind.LOCAL_VARIABLE, ctx);
   }
 
   // --- references: the first name of a type literal used as an expression ("x", "x.foo()") ---

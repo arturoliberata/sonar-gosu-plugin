@@ -100,7 +100,7 @@ public class GosuSensor implements Sensor {
     ParserRuleContext tree = file.tree();
     if (tree != null) {
       saveTreeMetrics(context, inputFile, MetricsVisitor.visit(tree));
-      saveSymbolTable(context, inputFile, SymbolTableVisitor.visit(tree));
+      saveSymbolTable(context, inputFile, file.symbols());
     }
     for (Map.Entry<GosuRule, GosuCheck> entry : checks.entrySet()) {
       RuleKey ruleKey = RuleKey.of(GosuRulesDefinition.REPOSITORY_KEY, entry.getKey().key());

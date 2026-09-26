@@ -1,0 +1,22 @@
+<p>A private field that is never used anywhere in its file is dead code and should be removed.</p>
+<p>In Gosu, fields are private unless declared <code>public</code>, <code>protected</code> or
+<code>internal</code>. A field exposed as a property with <code>as</code>
+(<code>var _name : String as Name</code>) is considered used.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+class RatingService {
+  var _cache : Map&lt;String, BigDecimal&gt;   // never used
+
+  function rate(policy : Policy) : BigDecimal {
+    return compute(policy)
+  }
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+class RatingService {
+  function rate(policy : Policy) : BigDecimal {
+    return compute(policy)
+  }
+}
+</pre>
