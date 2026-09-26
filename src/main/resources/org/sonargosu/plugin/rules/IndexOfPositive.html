@@ -1,0 +1,15 @@
+<p><code>indexOf</code> returns -1 when nothing is found, and 0 when the match is at the very start.
+Checking <code>indexOf(x) &gt; 0</code> therefore treats a match at the start as "not found". Use
+<code>&gt;= 0</code>, or <code>contains</code> when the position doesn't matter.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+if (policyNumber.indexOf("AUTO") &gt; 0) {   // false for "AUTO-12345"
+  applyAutoRules(policyNumber)
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+if (policyNumber.contains("AUTO")) {
+  applyAutoRules(policyNumber)
+}
+</pre>

@@ -1,0 +1,20 @@
+<p>When every branch of an <code>if</code> / <code>else</code> chain, every <code>case</code> of a
+<code>switch</code> with a <code>default</code>, or both sides of a <code>? :</code> operator do the
+same thing, the condition makes no difference. Either the condition is useless, or one of the
+branches was meant to do something else.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+var fee = claim.Expedited ? 50bd : 50bd
+
+if (policy.Renewal) {
+  sendNotice(policy)
+} else {
+  sendNotice(policy)
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+var fee = claim.Expedited ? 75bd : 50bd
+
+sendNotice(policy)
+</pre>

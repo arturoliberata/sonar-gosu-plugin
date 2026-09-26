@@ -8,13 +8,22 @@ import java.util.List;
 import java.util.function.Supplier;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonargosu.plugin.checks.AllBranchesIdenticalCheck;
+import org.sonargosu.plugin.checks.BigDecimalFromDoubleCheck;
+import org.sonargosu.plugin.checks.CognitiveComplexityCheck;
 import org.sonargosu.plugin.checks.CollapsibleIfCheck;
+import org.sonargosu.plugin.checks.DuplicateBranchCheck;
+import org.sonargosu.plugin.checks.DuplicateConditionCheck;
 import org.sonargosu.plugin.checks.DuplicateUsesCheck;
 import org.sonargosu.plugin.checks.EmptyBlockCheck;
 import org.sonargosu.plugin.checks.EmptyCatchBlockCheck;
 import org.sonargosu.plugin.checks.EmptyFunctionCheck;
+import org.sonargosu.plugin.checks.ExceptionNotThrownCheck;
 import org.sonargosu.plugin.checks.GosuCheck;
+import org.sonargosu.plugin.checks.HardcodedCredentialCheck;
+import org.sonargosu.plugin.checks.HardcodedSecretCheck;
 import org.sonargosu.plugin.checks.IdenticalOperandsCheck;
+import org.sonargosu.plugin.checks.IndexOfPositiveCheck;
 import org.sonargosu.plugin.checks.JumpInFinallyCheck;
 import org.sonargosu.plugin.checks.LineLengthCheck;
 import org.sonargosu.plugin.checks.ParsingErrorCheck;
@@ -26,6 +35,7 @@ import org.sonargosu.plugin.checks.TooManyParametersCheck;
 import org.sonargosu.plugin.checks.UnusedLocalVariableCheck;
 import org.sonargosu.plugin.checks.UnusedPrivateFieldCheck;
 import org.sonargosu.plugin.checks.UnusedPrivateFunctionCheck;
+import org.sonargosu.plugin.checks.WeekYearInDatePatternCheck;
 
 /**
  * Single source of truth for every rule: its metadata and the check that implements it.
@@ -43,8 +53,31 @@ public enum GosuRule {
     Severity.MAJOR, RuleType.BUG, SelfAssignmentCheck::new),
   IDENTICAL_OPERANDS("IdenticalOperands", "Identical expressions should not be used on both sides of an operator",
     Severity.MAJOR, RuleType.BUG, IdenticalOperandsCheck::new),
+  DUPLICATE_CONDITION("DuplicateCondition", "Conditions in an \"if\" / \"else if\" chain should not be repeated",
+    Severity.MAJOR, RuleType.BUG, DuplicateConditionCheck::new),
+  ALL_BRANCHES_IDENTICAL("AllBranchesIdentical", "All branches of a conditional structure should not have the same implementation",
+    Severity.MAJOR, RuleType.BUG, AllBranchesIdenticalCheck::new),
+  BIG_DECIMAL_FROM_DOUBLE("BigDecimalFromDouble", "\"BigDecimal\" should not be created from a double",
+    Severity.MAJOR, RuleType.BUG, BigDecimalFromDoubleCheck::new),
+  EXCEPTION_NOT_THROWN("ExceptionNotThrown", "Exceptions should not be created without being thrown",
+    Severity.MAJOR, RuleType.BUG, ExceptionNotThrownCheck::new),
+  WEEK_YEAR_IN_DATE_PATTERN("WeekYearInDatePattern", "Week year \"Y\" should not be used for calendar dates",
+    Severity.MAJOR, RuleType.BUG, WeekYearInDatePatternCheck::new),
+
+  // --- Vulnerabilities ---
+  HARDCODED_CREDENTIAL("HardcodedCredential", "Passwords should not be hard-coded",
+    Severity.BLOCKER, RuleType.VULNERABILITY, HardcodedCredentialCheck::new),
+  HARDCODED_SECRET("HardcodedSecret", "Secrets such as API keys and tokens should not be hard-coded",
+    Severity.BLOCKER, RuleType.VULNERABILITY, HardcodedSecretCheck::new),
 
   // --- Code smells ---
+  COGNITIVE_COMPLEXITY("CognitiveComplexity", "Functions should not be too hard to understand (Cognitive Complexity)",
+    Severity.CRITICAL, RuleType.CODE_SMELL, CognitiveComplexityCheck::new,
+    new Param(CognitiveComplexityCheck.THRESHOLD_PARAM, "Maximum authorized Cognitive Complexity", String.valueOf(CognitiveComplexityCheck.DEFAULT_THRESHOLD))),
+  DUPLICATE_BRANCH("DuplicateBranch", "Two branches of a conditional structure should not have the same implementation",
+    Severity.MAJOR, RuleType.CODE_SMELL, DuplicateBranchCheck::new),
+  INDEX_OF_POSITIVE("IndexOfPositive", "\"indexOf\" checks should not ignore index 0",
+    Severity.MAJOR, RuleType.CODE_SMELL, IndexOfPositiveCheck::new),
   EMPTY_BLOCK("EmptyBlock", "Blocks of code should not be left empty",
     Severity.MAJOR, RuleType.CODE_SMELL, EmptyBlockCheck::new),
   EMPTY_FUNCTION("EmptyFunction", "Functions should not be empty",

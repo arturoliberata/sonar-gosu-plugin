@@ -1,0 +1,15 @@
+<p><code>new BigDecimal(0.1)</code> does not create 0.1. A double cannot represent 0.1 exactly, and the
+constructor keeps the binary rounding error: the result is
+0.1000000000000000055511151231257827021181583404541015625. With money amounts and rates, those
+errors show up as off-by-a-cent results.</p>
+<p>Use a string, <code>BigDecimal.valueOf(...)</code>, or Gosu's <code>bd</code> literal suffix.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+var taxRate = new BigDecimal(0.07)
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+var taxRate = 0.07bd
+var otherRate = new BigDecimal("0.07")
+var thirdRate = BigDecimal.valueOf(0.07)
+</pre>

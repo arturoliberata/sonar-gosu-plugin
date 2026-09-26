@@ -1,0 +1,26 @@
+<p>Two branches of an <code>if</code> chain or two <code>case</code>s of a <code>switch</code> with the
+same code are either a copy-paste mistake, or duplicated code that should be merged by combining
+the conditions.</p>
+<p>Branches with a single statement are ignored, since repeating a short statement is often
+clearer than a complex combined condition.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+if (policy.Status == "draft") {
+  validate(policy)
+  save(policy)
+} else if (policy.Status == "quoted") {
+  validate(policy)
+  save(policy)
+} else {
+  archive(policy)
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+if (policy.Status == "draft" or policy.Status == "quoted") {
+  validate(policy)
+  save(policy)
+} else {
+  archive(policy)
+}
+</pre>

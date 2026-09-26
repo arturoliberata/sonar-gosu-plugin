@@ -287,4 +287,192 @@ class ChecksTest {
       """;
     assertThat(programIssueLines(new IdenticalOperandsCheck(), code)).containsExactly(1, 3, 8, 9, 10);
   }
+
+  @Test
+  void duplicate_condition() {
+    String code = """
+      if (a) { x() } else if (b) { y() } else if (a) { z() }
+      if (a) { x() }
+      else if (b) { y() }
+      else if (b) { z() }
+      if (a) { x() } else { if (a) { y() } }
+      """;
+    assertThat(programIssueLines(new DuplicateConditionCheck(), code)).containsExactly(1, 4);
+  }
+
+  @Test
+  void duplicate_branch() {
+    String code = """
+      if (a) {
+        x()
+        y()
+      } else if (b) {
+        x()
+        y()
+      } else {
+        z()
+      }
+      if (a) { x() } else if (b) { x() } else { z() }
+      if (a) {
+        x()
+        y()
+      } else {
+        x()
+        y()
+      }
+      switch (k) {
+        case 1:
+          x()
+          y()
+          break
+        case 2:
+          x()
+          y()
+          break
+        default:
+          z()
+      }
+      """;
+    assertThat(programIssueLines(new DuplicateBranchCheck(), code)).containsExactly(4, 23);
+  }
+
+  @Test
+  void all_branches_identical() {
+    String code = """
+      if (a) { x() } else { x() }
+      if (a) { x() } else if (b) { x() } else { x() }
+      if (a) { x() } else if (b) { x() }
+      var v = a ? 1 : 1
+      var w = a ? 1 : 2
+      switch (k) { case 1: x() break default: x() }
+      switch (k) { case 1: x() break case 2: x() }
+      """;
+    assertThat(programIssueLines(new AllBranchesIdenticalCheck(), code)).containsExactly(1, 2, 4, 6);
+  }
+
+  @Test
+  void cognitive_complexity() {
+    CognitiveComplexityCheck check = new CognitiveComplexityCheck();
+    check.configure(Map.of(CognitiveComplexityCheck.THRESHOLD_PARAM, "3"));
+    String code = """
+      class A {
+        function simple(a : boolean) {
+          if (a) { x() }
+        }
+        function nested(list : List<String>) {
+          for (s in list) {
+            if (s != null) {
+              if (s.length() > 0 and s != "x") {
+                x()
+              }
+            }
+          }
+        }
+        function chain(a : int) {
+          if (a == 1) { x() }
+          else if (a == 2) { y() }
+          else if (a == 3) { z() }
+          else { w() }
+        }
+        function lambdas(list : List<String>) {
+          list.each(\\ s -> { if (s == null) { x() } })
+        }
+      }
+      """;
+    List<String> messages = new ArrayList<>();
+    check.scan(new GosuFile(code, "A.gs"), (line, message) -> messages.add(line + ": " + message));
+    // nested: for +1, if +2, if +3, "and" +1 = 7.  chain: if, else if, else if, else = 4.  lambdas: 2.
+    assertThat(messages).containsExactly(
+      "5: Refactor this function to reduce its Cognitive Complexity from 7 to the 3 allowed.",
+      "14: Refactor this function to reduce its Cognitive Complexity from 4 to the 3 allowed.");
+  }
+
+  @Test
+  void hardcoded_credential() {
+    String code = """
+      var dbPassword = "Summer2024!"
+      var passwordLabel = "Enter password"
+      var PASSWORD_KEY = "db.password"
+      var password = ""
+      var pwd = "********"
+      var url = "jdbc:oracle:thin:@db;user=gw;password=Summer2024!"
+      var url2 = "jdbc:x;password=?"
+      var site = "https://admin:s3cret@example.com/api"
+      conn.Password = "hunter2"
+      connect(:password = "hunter2")
+      var props = { "password" -> "hunter2", "user" -> "gw" }
+      """;
+    assertThat(programIssueLines(new HardcodedCredentialCheck(), code)).containsExactly(1, 6, 8, 9, 10, 11);
+  }
+
+  @Test
+  void hardcoded_secret() {
+    // Fake keys are assembled at runtime so that secret scanners (such as GitHub push
+    // protection) don't mistake this test file for a leaked credential.
+    String awsKey = "AKIA" + "IOSFODNN7EXAMPLE";
+    String githubToken = "ghp" + "_1234567890abcdefghijABCDEFGHIJ123456";
+    String code = """
+      var ratingApiKey = "k3J9x7Qm2pL8vT4nR6wZ"
+      var tokenHeader = "Authorization"
+      var accessToken = "abc"
+      var authToken = "auth.token.header.name"
+      var awsKey = "%s"
+      var gh = "%s"
+      var clientSecret = "aaaaaaaaaaaaaaaa"
+      """.formatted(awsKey, githubToken);
+    assertThat(programIssueLines(new HardcodedSecretCheck(), code)).containsExactly(1, 5, 6);
+  }
+
+  @Test
+  void big_decimal_from_double() {
+    String code = """
+      var a = new BigDecimal(0.1)
+      var b = new java.math.BigDecimal(2.5d)
+      var c = new BigDecimal("0.1")
+      var d = new BigDecimal(1)
+      var e = new BigDecimal(0.1bd)
+      var f = new BigDecimal(-1e3)
+      var g = BigDecimal.valueOf(0.1)
+      """;
+    assertThat(programIssueLines(new BigDecimalFromDoubleCheck(), code)).containsExactly(1, 2, 6);
+  }
+
+  @Test
+  void exception_not_thrown() {
+    String code = """
+      new IllegalStateException("x")
+      throw new IllegalStateException("x")
+      var e = new RuntimeException()
+      new Foo()
+      new java.lang.Error("boom")
+      new StringBuilder().append("x")
+      """;
+    assertThat(programIssueLines(new ExceptionNotThrownCheck(), code)).containsExactly(1, 5);
+  }
+
+  @Test
+  void week_year_in_date_pattern() {
+    String code = """
+      var f1 = new SimpleDateFormat("YYYY-MM-dd")
+      var f2 = new java.text.SimpleDateFormat("yyyy-MM-dd")
+      var f3 = DateTimeFormatter.ofPattern("dd/MM/YYYY")
+      var f4 = new SimpleDateFormat("YYYY-'W'ww")
+      var f5 = new SimpleDateFormat("yyyy 'Year' MM")
+      fmt.applyPattern("YY/MM/dd")
+      print("Format: YYYY-MM-DD")
+      """;
+    assertThat(programIssueLines(new WeekYearInDatePatternCheck(), code)).containsExactly(1, 3, 6);
+  }
+
+  @Test
+  void index_of_positive() {
+    String code = """
+      if (s.indexOf("a") > 0) { x() }
+      if (s.indexOf("a") >= 0) { x() }
+      if (0 < s.lastIndexOf("a")) { x() }
+      if (s.indexOf("a") > 1) { x() }
+      if (count > 0) { x() }
+      """;
+    assertThat(programIssueLines(new IndexOfPositiveCheck(), code)).containsExactly(1, 3);
+  }
 }

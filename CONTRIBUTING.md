@@ -26,9 +26,9 @@ Pick one, comment on its issue (or open one) so nobody duplicates work, and go.
 |---|---|---|
 | Too many lines in a function | function body longer than N lines (parameter) | `TooManyParametersCheck` |
 | Boolean literal comparison | `x == true`, `flag != false` | `IdenticalOperandsCheck` |
-| Nested ternary operators | `a ? b : (c ? d : e)` | `CollapsibleIfCheck` |
-| Exception never thrown | `new SomethingException(...)` used as a statement, without `throw` | `SelfAssignmentCheck` |
+| Nested ternary operators | `a ? b : (c ? d : e)` | `AllBranchesIdenticalCheck` |
 | Redundant return | `return` as the last statement of a function that returns nothing | `JumpInFinallyCheck` |
+| Catching Throwable or Error | `catch (e : Throwable)` also catches errors the application can't recover from | `EmptyCatchBlockCheck` |
 
 **Medium:**
 
@@ -36,9 +36,9 @@ Pick one, comment on its issue (or open one) so nobody duplicates work, and go.
 |---|---|
 | Unused function parameter | the symbol table already marks parameters (`Kind.PARAMETER`); skip `override` functions |
 | Unused `uses` statement | the imported name never appears in the file; see `GosuFile.nameOccurrences` |
-| Identical branches | `if` and `else` (or two `case`s) with the same code |
-| Deep nesting | `if`/`for`/`while`/`try` nested deeper than N |
-| Cognitive complexity | the metric SonarQube uses for "hard to understand" functions |
+| Deep nesting | `if`/`for`/`while`/`try` nested deeper than N; `CognitiveComplexityCheck` shows how to track nesting |
+| Duplicated string literals | the same string literal repeated N times in a file |
+| Commented-out code | comments whose text parses as Gosu code (try `GosuParserFacade.parse` on it) |
 
 **Guidewire experts wanted** — these are the rules no other tool has:
 

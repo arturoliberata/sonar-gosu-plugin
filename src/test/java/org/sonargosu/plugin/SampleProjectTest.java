@@ -8,30 +8,35 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.sonargosu.plugin.checks.GosuCheck;
 import org.sonargosu.plugin.checks.GosuFile;
 import org.sonargosu.plugin.rules.GosuRule;
 
 /**
- * Keeps sample-project/src/acme/ClaimRules.gs honest: it parses, and each new rule
- * finds exactly what its comment says.
+ * Keeps the sample files in sample-project/src/acme honest: they parse, and every rule
+ * finds exactly what their comments say, nothing more.
  */
 class SampleProjectTest {
 
-  @Test
-  void claim_rules_sample_triggers_each_rule() throws IOException {
-    String code = Files.readString(Path.of("sample-project/src/acme/ClaimRules.gs"), StandardCharsets.UTF_8);
-    GosuFile file = new GosuFile(code, "ClaimRules.gs");
+  private static List<String> issues(String fileName) throws IOException {
+    String code = Files.readString(Path.of("sample-project/src/acme", fileName), StandardCharsets.UTF_8);
+    GosuFile file = new GosuFile(code, fileName);
     assertThat(file.syntaxErrors()).isEmpty();
 
     List<String> found = new ArrayList<>();
     for (GosuRule rule : GosuRule.values()) {
-      var check = rule.newCheck();
-      check.configure(java.util.Map.of());
+      GosuCheck check = rule.newCheck();
+      check.configure(Map.of());
       check.scan(file, (line, message) -> found.add(rule.key() + ":" + line));
     }
+    return found;
+  }
 
-    assertThat(found).containsExactlyInAnyOrder(
+  @Test
+  void claim_rules_sample() throws IOException {
+    assertThat(issues("ClaimRules.gs")).containsExactlyInAnyOrder(
       "UnusedPrivateField:11",
       "UnusedPrivateFunction:18",
       "EmptyFunction:23",
@@ -42,5 +47,20 @@ class SampleProjectTest {
       "JumpInFinally:54",
       "SelfAssignment:60",
       "IdenticalOperands:61");
+  }
+
+  @Test
+  void rating_rules_sample() throws IOException {
+    assertThat(issues("RatingRules.gs")).containsExactlyInAnyOrder(
+      "HardcodedCredential:12",
+      "HardcodedSecret:15",
+      "BigDecimalFromDouble:23",
+      "WeekYearInDatePattern:28",
+      "ExceptionNotThrown:34",
+      "IndexOfPositive:40",
+      "DuplicateCondition:49",
+      "DuplicateBranch:60",
+      "AllBranchesIdentical:70",
+      "CognitiveComplexity:74");
   }
 }

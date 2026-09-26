@@ -12,7 +12,7 @@ syntax highlighting, metrics, duplication detection, a symbol table and code-qua
 
 | Data | Details |
 |---|---|
-| Issues | 17 rules, all active in the built-in **Sonar way** profile |
+| Issues | 27 rules, all active in the built-in **Sonar way** profile |
 | Measures | lines of code, comment lines, functions, classes, statements, cyclomatic complexity |
 | Executable lines | one per statement; lines a coverage report is expected to cover |
 | Duplications | copy-paste detection; `uses` and `package` lines are excluded |
@@ -31,6 +31,16 @@ the grammar does not cover template syntax. The list is configurable with `sonar
 | `JumpInFinally` | Bug | `return`, `throw`, `break` or `continue` leaving a `finally` block |
 | `SelfAssignment` | Bug | `x = x` |
 | `IdenticalOperands` | Bug | the same expression on both sides of an operator: `a == a`, `x - x` |
+| `DuplicateCondition` | Bug | a condition repeated in an `if` / `else if` chain, so its branch never runs |
+| `AllBranchesIdentical` | Bug | every branch of an `if`/`else`, `switch` or `? :` does the same thing |
+| `BigDecimalFromDouble` | Bug | `new BigDecimal(0.1)`: keeps the double's rounding error; use `0.1bd` |
+| `ExceptionNotThrown` | Bug | `new SomeException(...)` without `throw` |
+| `WeekYearInDatePattern` | Bug | `"YYYY-MM-dd"` date patterns: wrong year around New Year |
+| `HardcodedCredential` | Vulnerability | passwords in variables, properties, connection strings and URLs |
+| `HardcodedSecret` | Vulnerability | API keys, tokens, AWS/GitHub/Slack keys and private keys in the code |
+| `CognitiveComplexity` | Code smell | functions that are too hard to understand (threshold 15, configurable) |
+| `DuplicateBranch` | Code smell | two branches or `case`s with the same code |
+| `IndexOfPositive` | Code smell | `indexOf(x) > 0` treats a match at index 0 as "not found" |
 | `EmptyBlock` | Code smell | empty `if`/`else`/loop/`try`/`finally`/`using` blocks without a comment |
 | `EmptyFunction` | Code smell | functions and property accessors with an empty body and no comment |
 | `SwitchWithoutDefault` | Code smell | `switch` without a `default` case |

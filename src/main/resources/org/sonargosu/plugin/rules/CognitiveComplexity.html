@@ -1,0 +1,40 @@
+<p>Cognitive Complexity measures how hard a function is to understand. Functions with a high score
+are hard to read, test and change safely.</p>
+<p>The score, following SonarSource's Cognitive Complexity definition, adds:</p>
+<ul>
+  <li>+1 for each <code>if</code>, <code>else if</code>, <code>else</code>, <code>switch</code>, loop,
+  <code>catch</code> and <code>? :</code> operator;</li>
+  <li>+1 more for each level of nesting those structures are inside (except <code>else</code> and
+  <code>else if</code>);</li>
+  <li>+1 for each sequence of <code>and</code> / <code>or</code> operators in a condition.</li>
+</ul>
+<p>Blocks (<code>\ x -&gt; ...</code>) increase the nesting level of the code they contain.</p>
+<h2>How to fix it</h2>
+<p>Extract nested blocks into well-named functions, return early instead of nesting, and replace
+long condition chains with lookups or polymorphism.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+function premium(policy : Policy) : BigDecimal {
+  var total = 0bd
+  for (vehicle in policy.Vehicles) {            // +1
+    if (vehicle.Active) {                       // +2 (nesting 1)
+      for (driver in vehicle.Drivers) {         // +3 (nesting 2)
+        if (driver.Age &lt; 25 and driver.Claims &gt; 0) {   // +4 (nesting 3) +1 (and)
+          total += surcharge(driver)
+        }
+      }
+    }
+  }
+  return total
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+function premium(policy : Policy) : BigDecimal {
+  var total = 0bd
+  for (vehicle in policy.Vehicles.where(\ v -&gt; v.Active)) {   // +1
+    total += driverSurcharges(vehicle)
+  }
+  return total
+}
+</pre>

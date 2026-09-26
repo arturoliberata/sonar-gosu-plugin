@@ -1,0 +1,23 @@
+<p>In an <code>if</code> / <code>else if</code> chain, only the first matching condition runs.
+A condition that repeats an earlier one can never be true when it is evaluated, so its branch is
+dead code. This is usually a copy-paste mistake where another condition was intended.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+if (claim.Amount &gt; 100000) {
+  assignSenior(claim)
+} else if (claim.Amount &gt; 10000) {
+  assignStandard(claim)
+} else if (claim.Amount &gt; 100000) {   // never true here
+  escalate(claim)
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+if (claim.Amount &gt; 100000) {
+  assignSenior(claim)
+} else if (claim.Amount &gt; 10000) {
+  assignStandard(claim)
+} else if (claim.Fraud) {
+  escalate(claim)
+}
+</pre>

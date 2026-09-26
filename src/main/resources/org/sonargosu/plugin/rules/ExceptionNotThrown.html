@@ -1,0 +1,15 @@
+<p>Creating an exception without <code>throw</code> does nothing: the exception is discarded, and the
+program carries on as if the error had not happened. The <code>throw</code> keyword was almost
+certainly forgotten.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+if (policy.EffectiveDate == null) {
+  new IllegalStateException("Policy has no effective date")
+}
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+if (policy.EffectiveDate == null) {
+  throw new IllegalStateException("Policy has no effective date")
+}
+</pre>

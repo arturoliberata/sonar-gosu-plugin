@@ -1,0 +1,16 @@
+<p>In date patterns, <code>y</code> is the calendar year and <code>Y</code> is the <em>week-based</em>
+year, meant to be used with week numbers (<code>w</code>). They differ in the last days of December
+and the first days of January: with <code>"YYYY-MM-dd"</code>, December 31, 2025 is printed as
+2026-12-31, because that day belongs to week 1 of 2026. Policies, claims and invoices dated around
+New Year get wrong dates.</p>
+<p>This rule checks the patterns given to <code>new SimpleDateFormat(...)</code>,
+<code>DateTimeFormatter.ofPattern(...)</code> and <code>applyPattern(...)</code>.</p>
+<h2>Noncompliant code example</h2>
+<pre>
+var format = new SimpleDateFormat("YYYY-MM-dd")
+</pre>
+<h2>Compliant solution</h2>
+<pre>
+var format = new SimpleDateFormat("yyyy-MM-dd")
+var weekFormat = new SimpleDateFormat("YYYY-'W'ww")   // week-based year with week numbers is fine
+</pre>

@@ -2,6 +2,7 @@ package org.sonargosu.plugin.checks;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.sonargosu.plugin.lexer.Token;
 import org.sonargosu.plugin.parser.GosuBaseListener;
 import org.sonargosu.plugin.parser.GosuParser;
@@ -37,6 +38,10 @@ public abstract class TreeCheck extends GosuBaseListener implements GosuCheck {
 
   protected void report(ParserRuleContext node, String message) {
     issues.report(node.getStart().getLine(), message);
+  }
+
+  protected void report(TerminalNode token, String message) {
+    issues.report(token.getSymbol().getLine(), message);
   }
 
   /**
